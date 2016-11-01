@@ -30,7 +30,7 @@ func HasFrontmatterHeader(input []byte) bool {
 	}
 	// parse frontmatter to validate it is valid YAML
 	var out map[string]interface{} = make(map[string]interface{})
-	err := yaml.Unmarshal(input, out)
+	err := yaml.Unmarshal(elements[0], out)
 	return err == nil
 }
 
@@ -51,5 +51,5 @@ func ParseFrontmatter(input []byte, out interface{}) error {
 		return errors.New("more than two frontmatter delimiters were found")
 	}
 	// parse frontmatter to validate it is valid YAML
-	return yaml.Unmarshal(input, out)
+	return yaml.Unmarshal(elements[0], out)
 }
