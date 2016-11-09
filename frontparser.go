@@ -12,7 +12,10 @@ var ErrorFrontmatterNotFound error = errors.New("frontmatter header not found")
 
 var FmYAMLDelimiter []byte = []byte("---")
 
-// returns whether the provided content
+// var FmTOMLDelimiter []byte = []byte("+++")
+// var FmJSONDelimiter []byte = []byte("{")
+
+// returns whether the provided content contains a YAML frontmatter header
 func HasFrontmatterHeader(input []byte) bool {
 	// remove heading and trailing spaces (and CR, LF, ...)
 	input = bytes.TrimSpace(input)
@@ -35,12 +38,14 @@ func HasFrontmatterHeader(input []byte) bool {
 }
 
 //
-func ParseFrontmatter(input []byte, out interface{}) error {
+func ParseFrontmatter(input []byte) (map[string]interface{}, error) {
+	var result map[string]interface{} = make(map[string]interface{})
+
 	// remove heading and trailing spaces (and CR, LF, ...)
 	input = bytes.TrimSpace(input)
 	// test for frontmatter delimiter
 	if !bytes.HasPrefix(input, FmYAMLDelimiter) {
-		return errors.New("heading frontmatter delimiter not found")
+		return result, errors.New("heading frontmatter delimiter not found")
 	}
 	// trim heading frontmatter delimiter
 	input = bytes.TrimPrefix(input, FmYAMLDelimiter)
@@ -48,10 +53,11 @@ func ParseFrontmatter(input []byte, out interface{}) error {
 	elements := bytes.SplitN(input, FmYAMLDelimiter, 2)
 	if len(elements) != 2 {
 		// malformed input
-		return errors.New("more than two frontmatter delimiters were found")
+		return result, errors.New("more than two frontmatter delimiters were found")
 	}
 	// parse frontmatter to validate it is valid YAML
-	return yaml.Unmarshal(elements[0], out)
+	err := yaml.Unmarshal(elements[0], result)
+	return result, err
 }
 
 // input is frontmatter + markdown
@@ -60,6 +66,7 @@ func ParseFrontmatter(input []byte, out interface{}) error {
 // - markdown
 // - error
 func ParseFrontmatterAndContent(input []byte) (map[string]interface{}, []byte, error) {
+
 	var resultFm map[string]interface{} = make(map[string]interface{})
 	var resultRest []byte = make([]byte, 0)
 
