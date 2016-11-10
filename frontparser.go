@@ -120,8 +120,8 @@ func SplitFrontmatterAndContent(input []byte) ([]byte, []byte, error) {
 		return resultFm, resultRest, errors.New("more than two frontmatter delimiters were found")
 	}
 
-	resultFm = elements[0]
-	resultRest = elements[1]
+	resultFm = bytes.TrimSpace(elements[0])
+	resultRest = bytes.TrimSpace(elements[1])
 
 	return resultFm, resultRest, nil
 }
